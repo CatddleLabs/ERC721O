@@ -392,6 +392,7 @@ contract ERC721O is
 
     /**
      * @dev See {ILayerZeroUserApplicationConfig-forceResumeReceive}.
+     * Warning: force resume will clear the failed payload and may cause fund loss
      */
     function forceResumeReceive(
         uint16 srcChainId,
