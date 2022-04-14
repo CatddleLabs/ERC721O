@@ -2,7 +2,7 @@
 A standard interface and implementation for omnichain non-fungible tokens based on ERC721.
 
 ## Motivation
-After LayerZero comes out, developing based on omnichain token(Token which can traverse round different chains) become a promising choice for many cross-chain projects. Though it's hardly find a good token standard for omnichain non-fungible tokens. Caveats hide in the LayerZero message mechanism. Implementation without prudence can cause severe fund loss. To minimize the chances of security issues and improve performance, omnichain non-fungible token standard comes up.
+After LayerZero comes out, developing based on omnichain token(Token which can traverse round different chains) become a promising choice for many cross-chain projects. Though it's hardly find a good token standard for omnichain non-fungible tokens. Caveats hide in the LayerZero message mechanism. Implementation without prudence can cause severe fund loss. To minimize the chances of security issues and extend the ablity of omnichain tokens, omnichain non-fungible token standard comes up.
 
 Notice: Contracts in this project are no audit and still under develop. Catddle Labs is not liable for any outcomes as a result of using ERC721-O. DYOR.
 
@@ -23,8 +23,8 @@ npx hardhat test
 import "./ERC721O.sol";
 
 contract YourToken is ERC721O {
-    constructor(address layerZeroEndpoint_)
-        ERC721O("Catddle", "CAT", layerZeroEndpoint_)
+    constructor(address endpoint_)
+        ERC721O("Catddle", "CAT", endpoint_)
     {}
 
     ...

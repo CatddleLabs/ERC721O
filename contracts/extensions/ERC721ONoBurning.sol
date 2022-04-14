@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./ERC721ONonBlocking.sol";
+import "../ERC721O.sol";
 
 /**
  * @dev Implementation of ERC721-O (Omnichain Non-Fungible Token standard) NoBurning Extension,
@@ -9,20 +9,26 @@ import "./ERC721ONonBlocking.sol";
  *
  * Ensure tokens with same tokenId will not be minted on different chains by user defined mint function
  */
-abstract contract ERC721ONoBurning is ERC721ONonBlocking {
+abstract contract ERC721ONoBurning is ERC721O {
     /**
-     * @dev See {IERC721_O-_beforeMoveOut}.
+     * @dev See {ERC721O-_beforeMoveOut}.
      */
-    function _beforeMoveOut(uint16, uint256 tokenId) internal virtual override {
+    function _beforeMoveOut(
+        address from,
+        uint16, // dstChainId
+        bytes memory, // to
+        uint256 tokenId
+    ) internal virtual override {
         // transfer in this contract to lock
-        _transfer(msg.sender, address(this), tokenId);
+        _transfer(from, address(this), tokenId);
     }
 
     /**
-     * @dev See {IERC721_O-_afterMoveIn}.
+     * @dev See {ERC721O-_afterMoveIn}.
      */
     function _afterMoveIn(
-        uint16,
+        bytes memory, // from
+        uint16, // srcChainId
         address to,
         uint256 tokenId
     ) internal virtual override {
@@ -34,6 +40,10 @@ abstract contract ERC721ONoBurning is ERC721ONonBlocking {
                 // token duplicate, cannot transfer token not under lock of this contract
             }
         } else {
+            // erc721 cannot mint to zero address
+            if (to == address(0x0)) {
+                to = address(0xdEaD);
+            }
             // mint if the token never come to current chain
             _safeMint(to, tokenId);
         }

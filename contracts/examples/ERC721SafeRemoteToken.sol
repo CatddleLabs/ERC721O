@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "../extensions/ERC721ONonBlocking.sol";
+import "../extensions/ERC721OSafeRemote.sol";
 
 /**
  * @dev For test only
  */
-contract ERC721ONonBlockingToken is ERC721ONonBlocking {
+contract ERC721OSafeRemoteToken is ERC721OSafeRemote {
     uint256 nextTokenId = 0;
 
     constructor(address layerZeroEndpoint_)

@@ -31,21 +31,12 @@ interface IERC721O is IERC721 {
     );
 
     /**
-     * @dev Returns the address of cross chain endpoint
-     */
-    function endpoint() external view returns (address);
-
-    /**
-     * @dev Returns the remote trusted contract address on chain `chainId`.
-     */
-    function remotes(uint16 chainId) external view returns (bytes memory);
-
-    /**
      * @dev Move `tokenId` token from current chain to `to` address on the `dstChainId` chain.
-
+     * The addtional value amount will be send back to the message sender.
+     *
      * WARNING:  This action will BURN/Lock the token on the current chain,
-     * and then message to the contract on destination chain to MINT/UNLOCK one. 
-     * If the contract on destination chain is not ready to receive the command, fund will LOST permanently.
+     * and then message to the contract on destination chain to MINT/UNLOCK one.
+     * If the contract on destination chain is not ready to receive the command, fund can LOST permanently.
      *
      * Requirements:
      *
@@ -53,7 +44,7 @@ interface IERC721O is IERC721 {
      * - `dstChainId` and receiver contract address must be setted in `remotes`.
      * -  msg.value must equal or bigger than the total gas fee for cross chain operation.
      * - `tokenId` must exist.
-     * - The caller must own the token.
+     * -  The caller must own the token.
      *
      * @param dstChainId the destination chain identifier (use the chainId defined in endpoint rather than general EVM chainId)
      * @param to the address on destination chain (in bytes). address length/format may vary by chains
@@ -68,6 +59,43 @@ interface IERC721O is IERC721 {
         uint16 dstChainId,
         bytes calldata to,
         uint256 tokenId,
+        address tokenPaymentAddress,
+        bytes calldata adapterParams
+    ) external payable;
+
+    /**
+     * @dev Move `tokenId` token from `from` address on the current chain to `to` address on the `dstChainId` chain.
+
+     * WARNING:  This action will BURN/Lock the token on the current chain,
+     * and then message to the contract on destination chain to MINT/UNLOCK one. 
+     * If the contract on destination chain is not ready to receive the command, fund can LOST permanently.
+     *
+     * Requirements:
+     *
+     * -  Receiver contract on the `dstChainId` chain must be ready to receive the move command on the destination chain.
+     * - `dstChainId` and receiver contract address must be setted in `remotes`.
+     * -  msg.value must equal or bigger than the total gas fee for cross chain operation.
+     * - `tokenId` must exist.
+     * - `tokenId` token must be owned by `from`.
+     * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
+     *
+     * @param from the owner of `tokenId`
+     * @param dstChainId the destination chain identifier (use the chainId defined in endpoint rather than general EVM chainId)
+     * @param to the address on destination chain (in bytes). address length/format may vary by chains
+     * @param tokenId uint256 ID of the token to be moved
+     * @param refundAddress if the source transaction is cheaper than the amount of value passed, refund the additional amount to this address
+     * @param tokenPaymentAddress the address of payment token (eg. ZRO) holder who would pay for the transaction
+     * (use address(0x0) to pay by native gas token (eg. ether) only)
+     * @param adapterParams parameters for custom functionality. e.g. receive airdropped native gas from the relayer on destination
+     *
+     * Emits a {MoveOut} event.
+     */
+    function moveFrom(
+        address from,
+        uint16 dstChainId,
+        bytes calldata to,
+        uint256 tokenId,
+        address payable refundAddress,
         address tokenPaymentAddress,
         bytes calldata adapterParams
     ) external payable;
