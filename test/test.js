@@ -16,9 +16,11 @@ describe("Test gas cost", function () {
     console.log("MockEndPoint deployed to:", mockEndPoint.address);
 
     // OmnichainNFT deployed
-    const BasicToken = await hre.ethers.getContractFactory("contracts/mocks/ERC721OToken.sol:ERC721OToken");
+    const BasicToken = await hre.ethers.getContractFactory("contracts/examples/ERC721OToken.sol:ERC721OToken");
     basicToken = await BasicToken.deploy(mockEndPoint.address);
     await basicToken.deployed();
+
+
 
   })
   it("Test", async function () {

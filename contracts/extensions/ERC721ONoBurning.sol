@@ -27,7 +27,6 @@ abstract contract ERC721ONoBurning is ERC721O {
      * @dev See {ERC721O-_afterMoveIn}.
      */
     function _afterMoveIn(
-        bytes memory, // from
         uint16, // srcChainId
         address to,
         uint256 tokenId

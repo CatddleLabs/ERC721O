@@ -20,11 +20,10 @@ interface IERC721O is IERC721 {
     );
 
     /**
-     * @dev Emitted when `tokenId` token is sent from `from` on `srcChainId` chain to `to` on current chain.
+     * @dev Emitted when `tokenId` token on `srcChainId` chain send to `to` on current chain.
      */
     event MoveIn(
         uint16 srcChainId,
-        bytes indexed from,
         address indexed to,
         uint256 indexed tokenId,
         uint64 nouce

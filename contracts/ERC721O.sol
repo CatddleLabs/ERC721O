@@ -31,7 +31,7 @@ contract ERC721O is
      */
     event MoveInFailed(
         uint16 srcChainId,
-        bytes from,
+        bytes srcAddress,
         uint64 nonce,
         bytes payload
     );
@@ -146,10 +146,9 @@ contract ERC721O is
     }
 
     /**
-     * @dev Local action after `tokenId` token from  `srcChainId` chain send to `to`
+     * @dev Local action after `tokenId` token from `srcChainId` chain send to `to`
      */
     function _afterMoveIn(
-        bytes memory, //from
         uint16, // srcChainId
         address to,
         uint256 tokenId
@@ -251,8 +250,7 @@ contract ERC721O is
             _remotes[dstChainId].length > 0,
             "ERC721-O: no remote contract on destination chain"
         );
-        // check whether the destination gas limit is higher than `_minDestinationGasLimit`
-        // if not revert
+        // revert if the destination gas limit is lower than `_minDestinationGasLimit`
         _gasGuard(adapterParams);
 
         _beforeMoveOut(from, dstChainId, to, tokenId);
@@ -281,7 +279,7 @@ contract ERC721O is
      */
     function lzReceive(
         uint16 srcChainId,
-        bytes memory from,
+        bytes memory srcAddress,
         uint64 nonce,
         bytes memory payload
     ) external virtual override {
@@ -289,17 +287,19 @@ contract ERC721O is
         require(msg.sender == address(_endpoint));
         // only receive message from `_remotes`
         require(
-            from.length == _remotes[srcChainId].length &&
-                keccak256(from) == keccak256(_remotes[srcChainId]),
+            srcAddress.length == _remotes[srcChainId].length &&
+                keccak256(srcAddress) == keccak256(_remotes[srcChainId]),
             "ERC721-O: invalid source contract"
         );
 
         // catch all exceptions to avoid failed messages blocking message path
-        try this.onLzReceive(srcChainId, from, nonce, payload) {
+        try this.onLzReceive(srcChainId, nonce, payload) {
             // pass if succeed
         } catch {
-            _failedPayloadHashs[srcChainId][from][nonce] = keccak256(payload);
-            emit MoveInFailed(srcChainId, from, nonce, payload);
+            _failedPayloadHashs[srcChainId][srcAddress][nonce] = keccak256(
+                payload
+            );
+            emit MoveInFailed(srcChainId, srcAddress, nonce, payload);
         }
     }
 
@@ -308,7 +308,6 @@ contract ERC721O is
      */
     function onLzReceive(
         uint16 srcChainId,
-        bytes memory from,
         uint64 nonce,
         bytes memory payload
     ) public virtual {
@@ -330,9 +329,9 @@ contract ERC721O is
             toAddress := mload(add(to, 20))
         }
 
-        _afterMoveIn(from, srcChainId, toAddress, tokenId);
+        _afterMoveIn(srcChainId, toAddress, tokenId);
 
-        emit MoveIn(srcChainId, from, toAddress, tokenId, nonce);
+        emit MoveIn(srcChainId, toAddress, tokenId, nonce);
     }
 
     /**
@@ -340,18 +339,20 @@ contract ERC721O is
      */
     function retryMessage(
         uint16 srcChainId,
-        bytes memory from,
+        bytes memory srcAddress,
         uint64 nonce,
         bytes calldata payload
     ) external payable {
         // assert there is message to retry
-        bytes32 payloadHash = _failedPayloadHashs[srcChainId][from][nonce];
+        bytes32 payloadHash = _failedPayloadHashs[srcChainId][srcAddress][
+            nonce
+        ];
         require(payloadHash != bytes32(0), "ERC721-O: no stored message");
         require(keccak256(payload) == payloadHash, "ERC721-O: invalid payload");
         // clear the stored message
-        _failedPayloadHashs[srcChainId][from][nonce] = bytes32(0);
+        _failedPayloadHashs[srcChainId][srcAddress][nonce] = bytes32(0);
         // execute the message. revert if it fails again
-        this.onLzReceive(srcChainId, from, nonce, payload);
+        this.onLzReceive(srcChainId, nonce, payload);
     }
 
     /**
