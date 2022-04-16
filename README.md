@@ -1,10 +1,13 @@
 # Omnichain Non-Fungible Token (ERC721-O)
-A standard interface and implementation for omnichain non-fungible tokens based on ERC721.
+A standard interface and implementation for omnichain non-fungible tokens based on ERC721. 
+
+## Introduction
+[ERC721O](https://catddle.medium.com/erc721o-e6c9a0ae09e1)
 
 ## Motivation
 After LayerZero comes out, developing based on omnichain token(Token which can traverse round different chains) become a promising choice for many cross-chain projects. Though it's hardly find a good token standard for omnichain non-fungible tokens. Caveats hide in the LayerZero message mechanism. Implementation without prudence can cause severe fund loss. To minimize the chances of security issues and extend the ablity of omnichain tokens, omnichain non-fungible token standard comes up.
 
-Notice: Contracts in this project are no audit and still under develop. Catddle Labs is not liable for any outcomes as a result of using ERC721-O. DYOR.
+Notice: Contracts in this project is still under develop. Catddle Labs is not liable for any outcomes as a result of using ERC721-O. DYOR.
 
 ## Requirements
 [hardhat](https://hardhat.org/tutorial/setting-up-the-environment.html)

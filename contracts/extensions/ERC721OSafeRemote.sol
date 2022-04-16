@@ -45,27 +45,6 @@ abstract contract ERC721OSafeRemote is ERC721O {
     }
 
     /**
-     * @dev Set the trusted remote contract of `remoteAddress` on `chainId` chain
-     * Auto invoke `pauseMove()` when set remote contract address to avoid avoid possible fund loss.
-     * Invoke `unpauseMove()` method when ensure remote contract has invoked `setRemote()` for this contract
-     *
-     * Emits a {RemoteSet} event.
-     */
-    function safeSetRemote(uint16 chainId, bytes calldata remoteAddress)
-        external
-        virtual
-        onlyOwner
-    {
-        // ensure `chainId` chain is in pause state
-        if (_pauses[chainId] == false) {
-            _pauses[chainId] = true;
-        }
-        _remotes[chainId] = remoteAddress;
-
-        emit RemoteSet(chainId, remoteAddress);
-    }
-
-    /**
      * @dev Disallow moving token to `chainId` chain
      *
      * Requirements:
